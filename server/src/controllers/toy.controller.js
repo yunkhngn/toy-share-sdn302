@@ -1,5 +1,6 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import * as toyService from "../services/toy.service.js";
+import * as reviewService from "../services/review.service.js";
 
 export const listToys = asyncHandler(async (req, res) => {
   const { search, category, ageRange, condition, status, page, limit } = req.query;
@@ -9,7 +10,8 @@ export const listToys = asyncHandler(async (req, res) => {
 
 export const getToyById = asyncHandler(async (req, res) => {
   const toy = await toyService.getToyById(req.params.id);
-  res.json({ toy });
+  const { reviews, avgRating } = await reviewService.listByToy(req.params.id);
+  res.json({ toy, reviews, avgRating });
 });
 
 export const listMyToys = asyncHandler(async (req, res) => {
