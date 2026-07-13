@@ -6,8 +6,7 @@
   "main": "src/server.js",
   "scripts": {
     "dev": "node --watch src/server.js",
-    "start": "node src/server.js",
-    "test": "vitest run"
+    "start": "node src/server.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
@@ -15,9 +14,5 @@
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "mongoose": "^8.5.1"
-  },
-  "devDependencies": {
-    "@rolldown/binding-darwin-arm64": "^1.1.5",
-    "vitest": "^4.1.10"
   }
 }
