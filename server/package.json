@@ -17,6 +17,7 @@
     "mongoose": "^8.5.1"
   },
   "devDependencies": {
+    "@rolldown/binding-darwin-arm64": "^1.1.5",
     "vitest": "^4.1.10"
   }
 }
