@@ -3,10 +3,27 @@ import { ApiError } from "../utils/ApiError.js";
 
 export async function listToys({ search, category, ageRange, condition, status, page = 1, limit = 12 }) {
   const filter = {};
-  if (search) filter.$text = { $search: search };
-  if (category) filter.category = category;
-  if (ageRange) filter.ageRange = ageRange;
-  if (condition) filter.condition = condition;
+
+  if (search && search.trim()) {
+    const searchRegex = new RegExp(search.trim(), "i");
+    filter.$or = [{ name: searchRegex }, { description: searchRegex }];
+  }
+
+  if (category) {
+    const cats = Array.isArray(category) ? category : category.split(",").filter(Boolean);
+    if (cats.length > 0) filter.category = { $in: cats };
+  }
+
+  if (ageRange) {
+    const ages = Array.isArray(ageRange) ? ageRange : ageRange.split(",").filter(Boolean);
+    if (ages.length > 0) filter.ageRange = { $in: ages };
+  }
+
+  if (condition) {
+    const conds = Array.isArray(condition) ? condition : condition.split(",").filter(Boolean);
+    if (conds.length > 0) filter.condition = { $in: conds };
+  }
+
   if (status) filter.status = status;
 
   const pageNum = Math.max(1, Number(page) || 1);
@@ -43,18 +60,15 @@ export async function listMyToys(ownerId) {
 
 export async function createToy(ownerId, { name, description, category, ageRange, condition, images }) {
   if (!name || !description || !ageRange) {
-    throw new ApiError(400, "name, description and ageRange are required");
+    throw new ApiError(400, "name, description, ageRange are required");
   }
-  if (!TOY_CATEGORIES.includes(category)) throw new ApiError(400, "Invalid category");
-  if (!TOY_CONDITIONS.includes(condition)) throw new ApiError(400, "Invalid condition");
-
   return Toy.create({
     owner: ownerId,
     name,
     description,
-    category,
+    category: category || "other",
     ageRange,
-    condition,
+    condition: condition || "good",
     images: images || [],
   });
 }
@@ -63,28 +77,20 @@ export async function updateToy(toyId, ownerId, updates) {
   const toy = await Toy.findById(toyId);
   if (!toy) throw new ApiError(404, "Toy not found");
   if (toy.owner.toString() !== ownerId.toString()) {
-    throw new ApiError(403, "Only the owner can edit this toy");
+    throw new ApiError(403, "Forbidden");
   }
-  if (toy.status === "borrowed") {
-    throw new ApiError(409, "Cannot edit a toy that is currently borrowed");
-  }
-
-  const allowedFields = ["name", "description", "category", "ageRange", "condition", "images"];
-  for (const field of allowedFields) {
-    if (updates[field] !== undefined) toy[field] = updates[field];
-  }
-  await toy.save();
-  return toy;
+  Object.assign(toy, updates);
+  return toy.save();
 }
 
 export async function deleteToy(toyId, ownerId) {
   const toy = await Toy.findById(toyId);
   if (!toy) throw new ApiError(404, "Toy not found");
   if (toy.owner.toString() !== ownerId.toString()) {
-    throw new ApiError(403, "Only the owner can delete this toy");
+    throw new ApiError(403, "Forbidden");
   }
   if (toy.status === "borrowed") {
-    throw new ApiError(409, "Cannot delete a toy that is currently borrowed");
+    throw new ApiError(400, "Cannot delete borrowed toy");
   }
-  await toy.deleteOne();
+  return toy.deleteOne();
 }

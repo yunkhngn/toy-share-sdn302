@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { request, getImageUrl } from "../api/client";
-import { Star, Heart, ChevronDown } from "lucide-react";
+import { Star, Heart, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "../components/ui/Button";
 
 const CATEGORY_LIST = [
@@ -20,7 +20,12 @@ const AGE_RANGES = [
   { id: "9+ tuổi", label: "9 tuổi trở lên" },
 ];
 
-// High quality real toy photos for fallback demonstration
+const CONDITION_LIST = [
+  { id: "new", label: "Mới 100%" },
+  { id: "good", label: "Còn rất tốt" },
+  { id: "used", label: "Đã qua sử dụng" },
+];
+
 const REAL_TOY_IMAGES = [
   "https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?w=800&auto=format&fit=crop&q=80",
   "https://images.unsplash.com/photo-1587654562363-60545657574e?w=800&auto=format&fit=crop&q=80",
@@ -34,24 +39,44 @@ export function Home() {
   const searchUrlParam = searchParams.get("search") || "";
 
   const [toys, setToys] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState("");
-  const [selectedAge, setSelectedAge] = useState("");
-  const [selectedCondition, setSelectedCondition] = useState("");
+  const [selectedCategories, setSelectedCategories] = useState([]);
+  const [selectedAges, setSelectedAges] = useState([]);
+  const [selectedConditions, setSelectedConditions] = useState([]);
   const [sortBy, setSortBy] = useState("recommended");
   const [loading, setLoading] = useState(true);
+
+  // Accordion Expand/Collapse States
+  const [expandAge, setExpandAge] = useState(true);
+  const [expandType, setExpandType] = useState(true);
+  const [expandCondition, setExpandCondition] = useState(true);
+
+  const toggleArrayItem = (setter, currentArr, item) => {
+    if (currentArr.includes(item)) {
+      setter(currentArr.filter((i) => i !== item));
+    } else {
+      setter([...currentArr, item]);
+    }
+  };
 
   const fetchToys = async () => {
     setLoading(true);
     try {
       const params = new URLSearchParams();
       if (searchUrlParam) params.append("search", searchUrlParam);
-      if (selectedCategory) params.append("category", selectedCategory);
-      if (selectedAge) params.append("ageRange", selectedAge);
-      if (selectedCondition) params.append("condition", selectedCondition);
+      if (selectedCategories.length > 0) params.append("category", selectedCategories.join(","));
+      if (selectedAges.length > 0) params.append("ageRange", selectedAges.join(","));
+      if (selectedConditions.length > 0) params.append("condition", selectedConditions.join(","));
 
       const data = await request(`/toys?${params.toString()}`);
-      const list = data.items || data.toys || data.data || (Array.isArray(data) ? data : []);
-      setToys(Array.isArray(list) ? list : []);
+      let list = data.items || data.toys || data.data || (Array.isArray(data) ? data : []);
+      if (!Array.isArray(list)) list = [];
+
+      // Sort
+      if (sortBy === "newest") {
+        list = [...list].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      }
+
+      setToys(list);
     } catch (err) {
       console.error("Lỗi tải đồ chơi:", err);
       setToys([]);
@@ -62,7 +87,7 @@ export function Home() {
 
   useEffect(() => {
     fetchToys();
-  }, [searchUrlParam, selectedCategory, selectedAge, selectedCondition]);
+  }, [searchUrlParam, selectedCategories, selectedAges, selectedConditions, sortBy]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-10">
@@ -73,7 +98,7 @@ export function Home() {
             Gifts and Toys for 13 to Young Adults
           </h1>
           <p className="text-gray-800 text-sm md:text-base font-medium leading-relaxed max-w-md">
-            ToyShare sets encourage young adults to pursue their passion for building, engineering, STEM and robotics in a creative way.
+            Estock sets encourage young adults to pursue their passion for building, engineering, STEM and robotics in a creative way.
           </p>
         </div>
 
@@ -118,88 +143,115 @@ export function Home() {
         <aside className="w-64 shrink-0 hidden md:block space-y-8">
           {/* Filter: Age */}
           <div className="border-b border-gray-100 pb-6 space-y-3">
-            <div className="flex items-center justify-between font-bold text-sm text-gray-900">
+            <button
+              onClick={() => setExpandAge(!expandAge)}
+              className="flex items-center justify-between w-full font-bold text-sm text-gray-900 cursor-pointer"
+            >
               <span>Age</span>
-              <ChevronDown className="w-4 h-4 text-gray-400" />
-            </div>
-            <div className="space-y-2 pt-1">
-              {AGE_RANGES.map((age) => (
-                <label key={age.id} className="flex items-center gap-3 text-xs font-medium text-gray-700 cursor-pointer hover:text-gray-900">
-                  <input
-                    type="radio"
-                    name="ageFilter"
-                    checked={selectedAge === age.id}
-                    onChange={() => setSelectedAge(selectedAge === age.id ? "" : age.id)}
-                    className="w-4 h-4 text-[#00b05b] accent-[#00b05b] rounded-sm"
-                  />
-                  <span>{age.label}</span>
-                </label>
-              ))}
-            </div>
+              {expandAge ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
+            </button>
+            {expandAge && (
+              <div className="space-y-2.5 pt-1">
+                {AGE_RANGES.map((age) => {
+                  const isChecked = selectedAges.includes(age.id);
+                  return (
+                    <label
+                      key={age.id}
+                      className="flex items-center gap-3 text-xs font-medium text-gray-700 cursor-pointer hover:text-gray-900 select-none"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={isChecked}
+                        onChange={() => toggleArrayItem(setSelectedAges, selectedAges, age.id)}
+                        className="w-4 h-4 text-[#00b05b] accent-[#00b05b] rounded-sm cursor-pointer"
+                      />
+                      <span>{age.label}</span>
+                    </label>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           {/* Filter: Product Type / Category */}
           <div className="border-b border-gray-100 pb-6 space-y-3">
-            <div className="flex items-center justify-between font-bold text-sm text-gray-900">
+            <button
+              onClick={() => setExpandType(!expandType)}
+              className="flex items-center justify-between w-full font-bold text-sm text-gray-900 cursor-pointer"
+            >
               <span>Product type</span>
-              <ChevronDown className="w-4 h-4 text-gray-400" />
-            </div>
-            <div className="space-y-2.5 pt-1">
-              {CATEGORY_LIST.map((cat) => (
-                <label key={cat.id} className="flex items-center justify-between text-xs font-medium text-gray-700 cursor-pointer hover:text-gray-900">
-                  <div className="flex items-center gap-3">
-                    <input
-                      type="checkbox"
-                      checked={selectedCategory === cat.id}
-                      onChange={() => setSelectedCategory(selectedCategory === cat.id ? "" : cat.id)}
-                      className="w-4 h-4 text-[#00b05b] accent-[#00b05b] rounded-sm"
-                    />
-                    <span>{cat.label}</span>
-                  </div>
-                  <span className="text-gray-400 font-semibold">{cat.count}</span>
-                </label>
-              ))}
-            </div>
+              {expandType ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
+            </button>
+            {expandType && (
+              <div className="space-y-2.5 pt-1">
+                {CATEGORY_LIST.map((cat) => {
+                  const isChecked = selectedCategories.includes(cat.id);
+                  return (
+                    <label
+                      key={cat.id}
+                      className="flex items-center justify-between text-xs font-medium text-gray-700 cursor-pointer hover:text-gray-900 select-none"
+                    >
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={() => toggleArrayItem(setSelectedCategories, selectedCategories, cat.id)}
+                          className="w-4 h-4 text-[#00b05b] accent-[#00b05b] rounded-sm cursor-pointer"
+                        />
+                        <span>{cat.label}</span>
+                      </div>
+                      <span className="text-gray-400 font-semibold">{cat.count}</span>
+                    </label>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           {/* Filter: Condition */}
           <div className="space-y-3">
-            <div className="flex items-center justify-between font-bold text-sm text-gray-900">
+            <button
+              onClick={() => setExpandCondition(!expandCondition)}
+              className="flex items-center justify-between w-full font-bold text-sm text-gray-900 cursor-pointer"
+            >
               <span>Condition</span>
-              <ChevronDown className="w-4 h-4 text-gray-400" />
-            </div>
-            <div className="space-y-2 pt-1">
-              {[
-                { id: "new", label: "Mới 100%" },
-                { id: "good", label: "Còn rất tốt" },
-                { id: "used", label: "Đã qua sử dụng" },
-              ].map((cond) => (
-                <label key={cond.id} className="flex items-center gap-3 text-xs font-medium text-gray-700 cursor-pointer hover:text-gray-900">
-                  <input
-                    type="radio"
-                    name="conditionFilter"
-                    checked={selectedCondition === cond.id}
-                    onChange={() => setSelectedCondition(selectedCondition === cond.id ? "" : cond.id)}
-                    className="w-4 h-4 text-[#00b05b] accent-[#00b05b] rounded-sm"
-                  />
-                  <span>{cond.label}</span>
-                </label>
-              ))}
-            </div>
+              {expandCondition ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
+            </button>
+            {expandCondition && (
+              <div className="space-y-2.5 pt-1">
+                {CONDITION_LIST.map((cond) => {
+                  const isChecked = selectedConditions.includes(cond.id);
+                  return (
+                    <label
+                      key={cond.id}
+                      className="flex items-center gap-3 text-xs font-medium text-gray-700 cursor-pointer hover:text-gray-900 select-none"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={isChecked}
+                        onChange={() => toggleArrayItem(setSelectedConditions, selectedConditions, cond.id)}
+                        className="w-4 h-4 text-[#00b05b] accent-[#00b05b] rounded-sm cursor-pointer"
+                      />
+                      <span>{cond.label}</span>
+                    </label>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
-          {(selectedCategory || selectedAge || selectedCondition) && (
+          {(selectedCategories.length > 0 || selectedAges.length > 0 || selectedConditions.length > 0) && (
             <Button
               variant="outline"
               size="sm"
-              className="w-full text-xs"
+              className="w-full text-xs font-bold rounded-xl"
               onClick={() => {
-                setSelectedCategory("");
-                setSelectedAge("");
-                setSelectedCondition("");
+                setSelectedCategories([]);
+                setSelectedAges([]);
+                setSelectedConditions([]);
               }}
             >
-              Clear filters
+              Clear all filters
             </Button>
           )}
         </aside>
