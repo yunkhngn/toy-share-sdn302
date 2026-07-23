@@ -14,12 +14,6 @@ const CATEGORY_MAP = {
   other: "Khác",
 };
 
-const CONDITION_MAP = {
-  new: "Mới",
-  good: "Tốt",
-  used: "Cũ",
-};
-
 export function MyToys() {
   const [toys, setToys] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -129,51 +123,54 @@ export function MyToys() {
     <div className="max-w-6xl mx-auto px-4 py-8 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-            <Package className="w-6 h-6 text-blue-600" /> Quản lý Đồ chơi của tôi
+          <h1 className="text-2xl font-extrabold text-gray-900 flex items-center gap-2">
+            <Package className="w-6 h-6 text-[#00b05b]" /> Quản lý Đồ chơi của tôi
           </h1>
-          <p className="text-xs text-gray-500 mt-1">Danh sách đồ chơi bạn đã đăng để cho mượn.</p>
+          <p className="text-xs font-semibold text-gray-500 mt-1">Danh sách đồ chơi bạn đã đăng để chia sẻ cho mượn.</p>
         </div>
-        <Button variant="primary" onClick={openAddModal}>
+        <Button variant="primary" className="bg-[#00b05b] hover:bg-[#00964d] rounded-2xl" onClick={openAddModal}>
           <Plus className="w-4 h-4 mr-1" /> Đăng đồ chơi mới
         </Button>
       </div>
 
       {loading ? (
-        <div className="text-center py-12 text-gray-500">Đang tải danh sách...</div>
+        <div className="text-center py-16 text-gray-500 font-medium">Đang tải danh sách...</div>
       ) : !Array.isArray(toys) || toys.length === 0 ? (
-        <div className="text-center py-12 text-gray-500 bg-white rounded-xl border border-gray-200">
+        <div className="text-center py-16 text-gray-500 font-medium bg-[#f4f5f7] rounded-[2rem]">
           Bạn chưa đăng đồ chơi nào. Hãy bấm "Đăng đồ chơi mới" ở trên!
         </div>
       ) : (
-        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-xs">
+        <div className="bg-white rounded-[2rem] border border-gray-100 overflow-hidden shadow-xs">
           <div className="divide-y divide-gray-100">
             {toys.map((toy) => (
-              <div key={toy._id} className="p-4 flex items-center justify-between gap-4 hover:bg-gray-50">
+              <div key={toy._id} className="p-5 flex items-center justify-between gap-4 hover:bg-gray-50/80 transition-colors">
                 <div className="flex items-center gap-4">
-                  <img
-                    src={toy.images && toy.images.length > 0 ? getImageUrl(toy.images[0]) : "https://placehold.co/100x100?text=No+Image"}
-                    alt={toy.name}
-                    className="w-16 h-16 rounded-lg object-cover border border-gray-100"
-                  />
+                  <div className="w-16 h-16 rounded-2xl bg-[#f4f5f7] p-2 flex items-center justify-center">
+                    <img
+                      src={toy.images && toy.images.length > 0 ? getImageUrl(toy.images[0]) : "https://placehold.co/100x100?text=Toy"}
+                      alt={toy.name}
+                      className="max-h-full max-w-full object-contain"
+                    />
+                  </div>
                   <div>
-                    <h4 className="font-semibold text-gray-900">{toy.name}</h4>
-                    <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
+                    <h4 className="font-extrabold text-gray-900">{toy.name}</h4>
+                    <div className="flex items-center gap-2 text-xs font-semibold text-gray-500 mt-1">
                       <span>{CATEGORY_MAP[toy.category] || toy.category}</span> • <span>{toy.ageRange}</span>
                     </div>
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
-                  <Badge variant={toy.status === "available" ? "success" : "warning"}>
+                  <Badge variant={toy.status === "available" ? "success" : "warning"} className="px-3 py-1 text-xs font-bold">
                     {toy.status === "available" ? "Sẵn sàng" : "Đang mượn"}
                   </Badge>
                   <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm" onClick={() => openEditModal(toy)}>
+                    <Button variant="outline" size="sm" className="rounded-xl text-xs font-bold" onClick={() => openEditModal(toy)}>
                       <Edit className="w-3.5 h-3.5 mr-1" /> Sửa
                     </Button>
                     <Button
                       variant="danger"
                       size="sm"
+                      className="rounded-xl text-xs font-bold"
                       onClick={() => handleDelete(toy._id)}
                       disabled={toy.status !== "available"}
                     >
@@ -194,34 +191,34 @@ export function MyToys() {
         title={editingToy ? "Chỉnh sửa đồ chơi" : "Đăng đồ chơi mới"}
       >
         <form onSubmit={handleSubmit} className="space-y-4">
-          {error && <div className="p-3 bg-rose-50 text-rose-700 text-xs rounded-lg">{error}</div>}
+          {error && <div className="p-3 bg-rose-50 text-rose-700 text-xs font-semibold rounded-xl">{error}</div>}
           <div>
-            <label className="block text-xs font-medium text-gray-700 mb-1">Tên đồ chơi</label>
+            <label className="block text-xs font-bold text-gray-700 mb-1">Tên đồ chơi</label>
             <input
               type="text"
               required
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+              className="w-full px-3.5 py-2.5 bg-[#f4f5f7] border border-transparent focus:border-[#00b05b] focus:bg-white rounded-xl text-sm font-medium focus:outline-none"
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-gray-700 mb-1">Mô tả</label>
+            <label className="block text-xs font-bold text-gray-700 mb-1">Mô tả</label>
             <textarea
               rows="3"
               required
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+              className="w-full px-3.5 py-2.5 bg-[#f4f5f7] border border-transparent focus:border-[#00b05b] focus:bg-white rounded-xl text-sm font-medium focus:outline-none"
             />
           </div>
           <div className="grid grid-cols-3 gap-3">
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">Danh mục</label>
+              <label className="block text-xs font-bold text-gray-700 mb-1">Danh mục</label>
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                className="w-full px-2 py-2 border border-gray-300 rounded-lg text-xs"
+                className="w-full px-2 py-2.5 bg-[#f4f5f7] border border-transparent focus:border-[#00b05b] focus:bg-white rounded-xl text-xs font-semibold focus:outline-none"
               >
                 <option value="educational">Học tập & Trí tuệ</option>
                 <option value="outdoor">Vận động ngoài trời</option>
@@ -232,11 +229,11 @@ export function MyToys() {
               </select>
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">Độ tuổi</label>
+              <label className="block text-xs font-bold text-gray-700 mb-1">Độ tuổi</label>
               <select
                 value={ageRange}
                 onChange={(e) => setAgeRange(e.target.value)}
-                className="w-full px-2 py-2 border border-gray-300 rounded-lg text-xs"
+                className="w-full px-2 py-2.5 bg-[#f4f5f7] border border-transparent focus:border-[#00b05b] focus:bg-white rounded-xl text-xs font-semibold focus:outline-none"
               >
                 <option value="0-2 tuổi">0-2 tuổi</option>
                 <option value="3-5 tuổi">3-5 tuổi</option>
@@ -245,11 +242,11 @@ export function MyToys() {
               </select>
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">Tình trạng</label>
+              <label className="block text-xs font-bold text-gray-700 mb-1">Tình trạng</label>
               <select
                 value={condition}
                 onChange={(e) => setCondition(e.target.value)}
-                className="w-full px-2 py-2 border border-gray-300 rounded-lg text-xs"
+                className="w-full px-2 py-2.5 bg-[#f4f5f7] border border-transparent focus:border-[#00b05b] focus:bg-white rounded-xl text-xs font-semibold focus:outline-none"
               >
                 <option value="new">Mới</option>
                 <option value="good">Tốt</option>
@@ -258,15 +255,15 @@ export function MyToys() {
             </div>
           </div>
           <div>
-            <label className="block text-xs font-medium text-gray-700 mb-1">Hình ảnh</label>
+            <label className="block text-xs font-bold text-gray-700 mb-1">Hình ảnh</label>
             <input
               type="file"
               accept="image/*"
               onChange={(e) => setImageFile(e.target.files[0])}
-              className="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+              className="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-[#00b05b]/10 file:text-[#00b05b] hover:file:bg-[#00b05b]/20 cursor-pointer"
             />
           </div>
-          <Button type="submit" variant="primary" className="w-full" disabled={submitting}>
+          <Button type="submit" variant="primary" className="w-full bg-[#00b05b] hover:bg-[#00964d] rounded-2xl py-3 text-sm font-bold" disabled={submitting}>
             {submitting ? "Đang lưu..." : editingToy ? "Cập nhật" : "Tạo đồ chơi"}
           </Button>
         </form>

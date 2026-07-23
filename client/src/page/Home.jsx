@@ -1,38 +1,45 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { request, getImageUrl } from "../api/client";
-import { Search, Sparkles } from "lucide-react";
+import { Star, Heart, ChevronDown, Filter } from "lucide-react";
 import { Badge } from "../components/ui/Badge";
+import { Button } from "../components/ui/Button";
 
-const CATEGORY_MAP = {
-  educational: "Học tập & Trí tuệ",
-  outdoor: "Vận động ngoài trời",
-  boardgame: "Boardgame",
-  doll: "Búp bê & Gấu bông",
-  vehicle: "Xe & Đua xe",
-  other: "Khác",
-};
+const CATEGORY_LIST = [
+  { id: "educational", label: "Học tập & Trí tuệ", count: 12 },
+  { id: "outdoor", label: "Vận động ngoài trời", count: 8 },
+  { id: "boardgame", label: "Boardgame", count: 15 },
+  { id: "doll", label: "Búp bê & Gấu bông", count: 20 },
+  { id: "vehicle", label: "Xe & Đua xe", count: 10 },
+  { id: "other", label: "Đồ chơi khác", count: 5 },
+];
 
-const CONDITION_MAP = {
-  new: "Mới",
-  good: "Tốt",
-  used: "Cũ",
-};
+const AGE_RANGES = [
+  { id: "0-2 tuổi", label: "0 đến 2 tuổi" },
+  { id: "3-5 tuổi", label: "3 đến 5 tuổi" },
+  { id: "6-8 tuổi", label: "6 đến 8 tuổi" },
+  { id: "9+ tuổi", label: "9 tuổi trở lên" },
+];
 
 export function Home() {
+  const [searchParams] = useSearchParams();
+  const searchUrlParam = searchParams.get("search") || "";
+
   const [toys, setToys] = useState([]);
-  const [search, setSearch] = useState("");
-  const [category, setCategory] = useState("");
-  const [ageRange, setAgeRange] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedAge, setSelectedAge] = useState("");
+  const [selectedCondition, setSelectedCondition] = useState("");
+  const [sortBy, setSortBy] = useState("recommended");
   const [loading, setLoading] = useState(true);
 
   const fetchToys = async () => {
     setLoading(true);
     try {
       const params = new URLSearchParams();
-      if (search) params.append("search", search);
-      if (category) params.append("category", category);
-      if (ageRange) params.append("ageRange", ageRange);
+      if (searchUrlParam) params.append("search", searchUrlParam);
+      if (selectedCategory) params.append("category", selectedCategory);
+      if (selectedAge) params.append("ageRange", selectedAge);
+      if (selectedCondition) params.append("condition", selectedCondition);
 
       const data = await request(`/toys?${params.toString()}`);
       const list = data.items || data.toys || data.data || (Array.isArray(data) ? data : []);
@@ -47,110 +54,212 @@ export function Home() {
 
   useEffect(() => {
     fetchToys();
-  }, [search, category, ageRange]);
+  }, [searchUrlParam, selectedCategory, selectedAge, selectedCondition]);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-      {/* Banner */}
-      <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-8 text-white shadow-md flex items-center justify-between">
-        <div className="space-y-2 max-w-xl">
-          <h1 className="text-3xl font-extrabold flex items-center gap-2">
-            Chia sẻ đồ chơi, lan toả niềm vui <Sparkles className="text-amber-300" />
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-10">
+      {/* Dribbble Style Hero Banner */}
+      <div className="bg-[#a4e2cd] rounded-[2.5rem] p-8 md:p-14 relative overflow-hidden flex items-center justify-between min-h-[320px] shadow-xs">
+        <div className="max-w-xl z-10 space-y-4">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-gray-900 leading-tight">
+            Đồ chơi mượn cho bé từ 1 đến 15 tuổi
           </h1>
-          <p className="text-blue-100 text-sm">
-            Nền tảng mượn và cho mượn đồ chơi cho bé an toàn, tiết kiệm và thân thiện.
+          <p className="text-gray-800 text-sm md:text-base font-medium leading-relaxed max-w-md">
+            ToyShare giúp các bé khám phá niềm đam mê sáng tạo, tư duy STEM và phát triển kỹ năng thông qua việc chia sẻ đồ chơi an toàn.
           </p>
         </div>
-      </div>
 
-      {/* Filter Bar */}
-      <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-xs flex flex-wrap gap-4 items-center">
-        <div className="flex-1 min-w-[200px] relative">
-          <Search className="w-5 h-5 absolute left-3 top-2.5 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Tìm theo tên đồ chơi..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
-          />
+        {/* Decorative Toy Illustration */}
+        <div className="hidden lg:block relative z-10 w-96 h-64">
+          <svg className="w-full h-full text-rose-300 drop-shadow-lg animate-pulse" viewBox="0 0 200 200" fill="none">
+            <path d="M40,100 Q100,20 160,100 Q100,180 40,100 Z" fill="#ff8ba7" />
+            <circle cx="100" cy="100" r="35" fill="#ffd166" />
+            <rect x="75" y="85" width="50" height="30" rx="15" fill="#06d6a0" />
+          </svg>
         </div>
 
-        <div className="flex items-center gap-3">
-          <select
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
-          >
-            <option value="">Tất cả danh mục</option>
-            <option value="educational">Học tập & Trí tuệ</option>
-            <option value="outdoor">Vận động ngoài trời</option>
-            <option value="boardgame">Boardgame</option>
-            <option value="doll">Búp bê & Gấu bông</option>
-            <option value="vehicle">Xe & Đua xe</option>
-            <option value="other">Khác</option>
-          </select>
+        {/* Background Subtle Shapes */}
+        <div className="absolute -bottom-10 -right-10 w-72 h-72 bg-white/20 rounded-full blur-2xl pointer-events-none" />
+      </div>
 
+      {/* Main Catalog Header Bar */}
+      <div className="flex items-center justify-between pt-2">
+        <h2 className="text-base font-bold text-gray-900">
+          Hiển thị {toys.length} Đồ chơi
+        </h2>
+
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-semibold text-gray-500 hidden sm:inline">Sắp xếp:</span>
           <select
-            value={ageRange}
-            onChange={(e) => setAgeRange(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            className="bg-white border border-gray-200 rounded-full px-4 py-2 text-xs font-bold text-gray-800 focus:outline-none focus:border-[#00b05b] cursor-pointer shadow-2xs"
           >
-            <option value="">Tất cả độ tuổi</option>
-            <option value="0-2 tuổi">0-2 tuổi</option>
-            <option value="3-5 tuổi">3-5 tuổi</option>
-            <option value="6-8 tuổi">6-8 tuổi</option>
-            <option value="9+ tuổi">9+ tuổi</option>
+            <option value="recommended">Gợi ý hàng đầu</option>
+            <option value="newest">Mới nhất</option>
           </select>
         </div>
       </div>
 
-      {/* Toy Grid */}
-      {loading ? (
-        <div className="text-center py-12 text-gray-500">Đang tải danh sách đồ chơi...</div>
-      ) : !Array.isArray(toys) || toys.length === 0 ? (
-        <div className="text-center py-12 text-gray-500">Không tìm thấy đồ chơi phù hợp.</div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {toys.map((toy) => {
-            const isAvailable = toy.status === "available";
-            const imageUrl = toy.images && toy.images.length > 0 ? getImageUrl(toy.images[0]) : "https://placehold.co/400x300?text=No+Image";
-
-            return (
-              <Link
-                key={toy._id}
-                to={`/toys/${toy._id}`}
-                className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-xs hover:shadow-md transition-all flex flex-col group"
-              >
-                <div className="h-48 bg-gray-100 relative overflow-hidden">
-                  <img
-                    src={imageUrl}
-                    alt={toy.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+      {/* Catalog Section: Sidebar Filters + Products Grid */}
+      <div className="flex gap-10">
+        {/* Left Sidebar Filters */}
+        <aside className="w-64 shrink-0 hidden md:block space-y-8">
+          {/* Filter: Age */}
+          <div className="border-b border-gray-100 pb-6 space-y-3">
+            <div className="flex items-center justify-between font-bold text-sm text-gray-900">
+              <span>Độ tuổi</span>
+              <ChevronDown className="w-4 h-4 text-gray-400" />
+            </div>
+            <div className="space-y-2 pt-1">
+              {AGE_RANGES.map((age) => (
+                <label key={age.id} className="flex items-center gap-3 text-xs font-medium text-gray-700 cursor-pointer hover:text-gray-900">
+                  <input
+                    type="radio"
+                    name="ageFilter"
+                    checked={selectedAge === age.id}
+                    onChange={() => setSelectedAge(selectedAge === age.id ? "" : age.id)}
+                    className="w-4 h-4 text-[#00b05b] accent-[#00b05b] rounded-sm"
                   />
-                  <div className="absolute top-3 right-3">
-                    <Badge variant={isAvailable ? "success" : "warning"}>
-                      {isAvailable ? "Sẵn sàng" : "Đang mượn"}
-                    </Badge>
+                  <span>{age.label}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* Filter: Product Type / Category */}
+          <div className="border-b border-gray-100 pb-6 space-y-3">
+            <div className="flex items-center justify-between font-bold text-sm text-gray-900">
+              <span>Loại đồ chơi</span>
+              <ChevronDown className="w-4 h-4 text-gray-400" />
+            </div>
+            <div className="space-y-2.5 pt-1">
+              {CATEGORY_LIST.map((cat) => (
+                <label key={cat.id} className="flex items-center justify-between text-xs font-medium text-gray-700 cursor-pointer hover:text-gray-900">
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="checkbox"
+                      checked={selectedCategory === cat.id}
+                      onChange={() => setSelectedCategory(selectedCategory === cat.id ? "" : cat.id)}
+                      className="w-4 h-4 text-[#00b05b] accent-[#00b05b] rounded-sm"
+                    />
+                    <span>{cat.label}</span>
                   </div>
-                </div>
-                <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
-                  <div>
-                    <h3 className="font-semibold text-gray-900 group-hover:text-blue-600 line-clamp-1">
-                      {toy.name}
-                    </h3>
-                    <p className="text-xs text-gray-500 mt-1 line-clamp-2">{toy.description}</p>
+                  <span className="text-gray-400 font-semibold">{cat.count}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* Filter: Condition */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between font-bold text-sm text-gray-900">
+              <span>Tình trạng đồ chơi</span>
+              <ChevronDown className="w-4 h-4 text-gray-400" />
+            </div>
+            <div className="space-y-2 pt-1">
+              {[
+                { id: "new", label: "Mới 100%" },
+                { id: "good", label: "Còn rất tốt" },
+                { id: "used", label: "Đã qua sử dụng" },
+              ].map((cond) => (
+                <label key={cond.id} className="flex items-center gap-3 text-xs font-medium text-gray-700 cursor-pointer hover:text-gray-900">
+                  <input
+                    type="radio"
+                    name="conditionFilter"
+                    checked={selectedCondition === cond.id}
+                    onChange={() => setSelectedCondition(selectedCondition === cond.id ? "" : cond.id)}
+                    className="w-4 h-4 text-[#00b05b] accent-[#00b05b] rounded-sm"
+                  />
+                  <span>{cond.label}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {(selectedCategory || selectedAge || selectedCondition) && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full text-xs"
+              onClick={() => {
+                setSelectedCategory("");
+                setSelectedAge("");
+                setSelectedCondition("");
+              }}
+            >
+              Xoá bộ lọc
+            </Button>
+          )}
+        </aside>
+
+        {/* Right Main Product Grid */}
+        <main className="flex-1">
+          {loading ? (
+            <div className="text-center py-20 text-gray-500 font-medium">Đang tải danh sách đồ chơi...</div>
+          ) : !Array.isArray(toys) || toys.length === 0 ? (
+            <div className="text-center py-20 bg-[#f4f5f7] rounded-3xl text-gray-500 font-medium">
+              Không tìm thấy đồ chơi nào phù hợp với tìm kiếm của bạn.
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {toys.map((toy) => {
+                const isAvailable = toy.status === "available";
+                const imageUrl = toy.images && toy.images.length > 0 ? getImageUrl(toy.images[0]) : "https://placehold.co/400x400?text=Toy";
+
+                return (
+                  <div key={toy._id} className="group flex flex-col justify-between">
+                    {/* Dribbble Product Card Container */}
+                    <div className="bg-[#f4f5f7] rounded-[2rem] p-6 relative flex items-center justify-center h-64 group-hover:bg-gray-200/70 transition-colors">
+                      <button className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white flex items-center justify-center shadow-2xs hover:scale-110 text-gray-400 hover:text-rose-500 transition-all cursor-pointer">
+                        <Heart className="w-4 h-4" />
+                      </button>
+
+                      <img
+                        src={imageUrl}
+                        alt={toy.name}
+                        className="max-h-48 w-auto object-contain drop-shadow-md group-hover:scale-105 transition-transform duration-300"
+                      />
+                    </div>
+
+                    {/* Product Metadata & Actions */}
+                    <div className="pt-4 text-center space-y-2">
+                      <h3 className="font-extrabold text-gray-900 text-base line-clamp-1 group-hover:text-[#00b05b] transition-colors">
+                        {toy.name}
+                      </h3>
+
+                      <div className="flex items-center justify-center gap-1 text-amber-400 text-xs font-bold">
+                        <Star className="w-4 h-4 fill-amber-400" />
+                        <Star className="w-4 h-4 fill-amber-400" />
+                        <Star className="w-4 h-4 fill-amber-400" />
+                        <Star className="w-4 h-4 fill-amber-400" />
+                        <Star className="w-4 h-4 fill-amber-400" />
+                      </div>
+
+                      <div className="text-sm font-extrabold text-gray-900">
+                        {isAvailable ? (
+                          <span className="text-[#00b05b]">Cho mượn miễn phí</span>
+                        ) : (
+                          <span className="text-amber-600">Đang được mượn</span>
+                        )}
+                      </div>
+
+                      <Link to={`/toys/${toy._id}`} className="block pt-1">
+                        <Button
+                          variant="outline"
+                          className="w-full rounded-2xl border-gray-200 text-gray-800 font-bold hover:border-[#00b05b] hover:text-[#00b05b] hover:bg-white text-xs py-2.5 shadow-2xs"
+                        >
+                          {isAvailable ? "Xem chi tiết & Mượn" : "Xem chi tiết"}
+                        </Button>
+                      </Link>
+                    </div>
                   </div>
-                  <div className="pt-2 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
-                    <span>{CATEGORY_MAP[toy.category] || toy.category || "Khác"}</span>
-                    <span>{toy.ageRange || "Mọi lứa tuổi"}</span>
-                  </div>
-                </div>
-              </Link>
-            );
-          })}
-        </div>
-      )}
+                );
+              })}
+            </div>
+          )}
+        </main>
+      </div>
     </div>
   );
 }

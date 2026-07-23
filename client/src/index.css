@@ -1,1 +1,34 @@
 @import "tailwindcss";
+
+@layer base {
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background-color: #ffffff;
+    color: #111827;
+  }
+}
+
+/* Custom Dribbble Theme Helpers */
+.bg-mint-banner {
+  background-color: #a4e2cd;
+}
+
+.bg-brand-emerald {
+  background-color: #00b05b;
+}
+
+.hover\:bg-brand-emerald-dark:hover {
+  background-color: #00964d;
+}
+
+.text-brand-emerald {
+  color: #00b05b;
+}
+
+.border-brand-emerald {
+  border-color: #00b05b;
+}
+
+.bg-card-gray {
+  background-color: #f4f5f7;
+}
