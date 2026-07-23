@@ -95,10 +95,10 @@ export function Home() {
       <div className="bg-[#a4e2cd] rounded-[2.5rem] p-8 md:p-14 relative overflow-hidden flex items-center justify-between min-h-[320px] shadow-xs">
         <div className="max-w-xl z-10 space-y-4">
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-gray-900 leading-tight">
-            Gifts and Toys for 13 to Young Adults
+            Quà tặng & Đồ chơi cho bé từ 1 đến 15 tuổi
           </h1>
           <p className="text-gray-800 text-sm md:text-base font-medium leading-relaxed max-w-md">
-            Estock sets encourage young adults to pursue their passion for building, engineering, STEM and robotics in a creative way.
+            ToyShare khuyến khích các bé phát triển niềm đam mê sáng tạo, tư duy kỹ thuật STEM và khám phá thế giới thông qua việc chia sẻ đồ chơi an toàn.
           </p>
         </div>
 
@@ -106,7 +106,7 @@ export function Home() {
         <div className="hidden lg:block relative z-10 w-96 h-64 flex items-center justify-center">
           <img
             src="https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?w=800&auto=format&fit=crop&q=80"
-            alt="Kid Toy Airplane"
+            alt="Đồ chơi máy bay trẻ em"
             className="w-full h-full object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-300"
             onError={(e) => {
               e.currentTarget.src = REAL_TOY_IMAGES[0];
@@ -121,18 +121,18 @@ export function Home() {
       {/* Main Catalog Header Bar */}
       <div className="flex items-center justify-between pt-2">
         <h2 className="text-base font-bold text-gray-900">
-          Showing {toys.length} Products
+          Hiển thị {toys.length} đồ chơi
         </h2>
 
         <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold text-gray-500 hidden sm:inline">Sort by:</span>
+          <span className="text-xs font-semibold text-gray-500 hidden sm:inline">Sắp xếp:</span>
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
             className="bg-white border border-gray-200 rounded-full px-4 py-2 text-xs font-bold text-gray-800 focus:outline-none focus:border-[#00b05b] cursor-pointer shadow-2xs"
           >
-            <option value="recommended">Recommended</option>
-            <option value="newest">Newest Arrival</option>
+            <option value="recommended">Gợi ý hàng đầu</option>
+            <option value="newest">Mới nhất</option>
           </select>
         </div>
       </div>
@@ -147,7 +147,7 @@ export function Home() {
               onClick={() => setExpandAge(!expandAge)}
               className="flex items-center justify-between w-full font-bold text-sm text-gray-900 cursor-pointer"
             >
-              <span>Age</span>
+              <span>Độ tuổi</span>
               {expandAge ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
             </button>
             {expandAge && (
@@ -179,7 +179,7 @@ export function Home() {
               onClick={() => setExpandType(!expandType)}
               className="flex items-center justify-between w-full font-bold text-sm text-gray-900 cursor-pointer"
             >
-              <span>Product type</span>
+              <span>Loại đồ chơi</span>
               {expandType ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
             </button>
             {expandType && (
@@ -214,7 +214,7 @@ export function Home() {
               onClick={() => setExpandCondition(!expandCondition)}
               className="flex items-center justify-between w-full font-bold text-sm text-gray-900 cursor-pointer"
             >
-              <span>Condition</span>
+              <span>Tình trạng đồ chơi</span>
               {expandCondition ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
             </button>
             {expandCondition && (
@@ -251,7 +251,7 @@ export function Home() {
                 setSelectedConditions([]);
               }}
             >
-              Clear all filters
+              Xoá tất cả bộ lọc
             </Button>
           )}
         </aside>

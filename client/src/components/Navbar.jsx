@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { Search, ShoppingBag, LogOut, User, LogIn, Clock, Package } from "lucide-react";
+import { Search, ShoppingBag, LogOut, Package, Clock } from "lucide-react";
 import { Button } from "./ui/Button";
 
 export function Navbar() {
@@ -80,7 +80,7 @@ export function Navbar() {
             <Search className="w-4 h-4 absolute left-3.5 top-3 text-gray-400" />
             <input
               type="text"
-              placeholder="Search..."
+              placeholder="Tìm kiếm đồ chơi..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10 pr-4 py-2 bg-gray-100/80 hover:bg-gray-100 focus:bg-white text-sm rounded-full w-52 sm:w-64 focus:w-72 transition-all border border-transparent focus:border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#00b05b]/20"
@@ -89,7 +89,7 @@ export function Navbar() {
 
           {user ? (
             <div className="flex items-center gap-3">
-              <Link to="/requests" className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-700 hover:bg-gray-200 transition-colors relative">
+              <Link to="/requests" className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-700 hover:bg-gray-200 transition-colors relative" title="Quản lý mượn/trả">
                 <ShoppingBag className="w-5 h-5" />
                 <span className="absolute -top-1 -right-1 w-5 h-5 bg-[#00b05b] text-white text-[10px] font-bold rounded-full flex items-center justify-center">
                   !
@@ -107,6 +107,7 @@ export function Navbar() {
                     navigate("/login");
                   }}
                   className="rounded-full px-3"
+                  title="Đăng xuất"
                 >
                   <LogOut className="w-4 h-4" />
                 </Button>
@@ -116,7 +117,7 @@ export function Navbar() {
             <div className="flex items-center gap-3">
               <Link to="/login">
                 <Button variant="primary" className="rounded-full px-6 py-2 text-sm bg-[#00b05b] hover:bg-[#00964d]">
-                  Sign in
+                  Đăng nhập
                 </Button>
               </Link>
             </div>
