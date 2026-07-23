@@ -21,14 +21,19 @@ export function Requests() {
   const fetchRequests = async () => {
     setLoading(true);
     try {
-      const [borrowedData, lentData] = await Promise.all([
+      const [borrowedRes, lentRes] = await Promise.all([
         request("/requests/borrowed"),
         request("/requests/lent"),
       ]);
-      setBorrowedRequests(borrowedData.data || borrowedData);
-      setLentRequests(lentData.data || lentData);
+      const bList = borrowedRes.requests || borrowedRes.items || borrowedRes.data || (Array.isArray(borrowedRes) ? borrowedRes : []);
+      const lList = lentRes.requests || lentRes.items || lentRes.data || (Array.isArray(lentRes) ? lentRes : []);
+
+      setBorrowedRequests(Array.isArray(bList) ? bList : []);
+      setLentRequests(Array.isArray(lList) ? lList : []);
     } catch (err) {
       console.error("Lỗi tải yêu cầu:", err);
+      setBorrowedRequests([]);
+      setLentRequests([]);
     } finally {
       setLoading(false);
     }
@@ -126,7 +131,7 @@ export function Requests() {
         <div className="text-center py-12 text-gray-500">Đang tải...</div>
       ) : activeTab === "borrowed" ? (
         /* Tab 1: Borrowed Requests */
-        borrowedRequests.length === 0 ? (
+        !Array.isArray(borrowedRequests) || borrowedRequests.length === 0 ? (
           <div className="text-center py-12 text-gray-500 bg-white rounded-xl border border-gray-200">
             Bạn chưa gửi yêu cầu mượn đồ chơi nào.
           </div>
@@ -139,7 +144,7 @@ export function Requests() {
                   <div className="flex items-center gap-3 text-xs text-gray-500">
                     <span className="flex items-center gap-1">
                       <Calendar className="w-3.5 h-3.5" />
-                      {new Date(reqItem.startDate).toLocaleDateString("vi-VN")} - {new Date(reqItem.endDate).toLocaleDateString("vi-VN")}
+                      {reqItem.borrowDate ? new Date(reqItem.borrowDate).toLocaleDateString("vi-VN") : "N/A"} - {reqItem.returnDate ? new Date(reqItem.returnDate).toLocaleDateString("vi-VN") : "N/A"}
                     </span>
                     <span>Chủ đồ: {reqItem.owner?.name || "Người dùng"}</span>
                   </div>
@@ -170,7 +175,7 @@ export function Requests() {
         )
       ) : (
         /* Tab 2: Lent Requests */
-        lentRequests.length === 0 ? (
+        !Array.isArray(lentRequests) || lentRequests.length === 0 ? (
           <div className="text-center py-12 text-gray-500 bg-white rounded-xl border border-gray-200">
             Chưa có ai gửi yêu cầu mượn đồ chơi của bạn.
           </div>
@@ -184,7 +189,7 @@ export function Requests() {
                     <span>Người mượn: {reqItem.borrower?.name || "Người dùng"}</span>
                     <span className="flex items-center gap-1">
                       <Calendar className="w-3.5 h-3.5" />
-                      {new Date(reqItem.startDate).toLocaleDateString("vi-VN")} - {new Date(reqItem.endDate).toLocaleDateString("vi-VN")}
+                      {reqItem.borrowDate ? new Date(reqItem.borrowDate).toLocaleDateString("vi-VN") : "N/A"} - {reqItem.returnDate ? new Date(reqItem.returnDate).toLocaleDateString("vi-VN") : "N/A"}
                     </span>
                   </div>
                 </div>

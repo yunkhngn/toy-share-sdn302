@@ -7,6 +7,21 @@ import { Badge } from "../components/ui/Badge";
 import { Modal } from "../components/ui/Modal";
 import { Star, User, Tag } from "lucide-react";
 
+const CATEGORY_MAP = {
+  educational: "Học tập & Trí tuệ",
+  outdoor: "Vận động ngoài trời",
+  boardgame: "Boardgame",
+  doll: "Búp bê & Gấu bông",
+  vehicle: "Xe & Đua xe",
+  other: "Khác",
+};
+
+const CONDITION_MAP = {
+  new: "Mới",
+  good: "Tốt",
+  used: "Cũ",
+};
+
 export function ToyDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -17,9 +32,9 @@ export function ToyDetail() {
   const [loading, setLoading] = useState(true);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
-  const [note, setNote] = useState("");
+  const [borrowDate, setBorrowDate] = useState("");
+  const [returnDate, setReturnDate] = useState("");
+  const [message, setMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -27,11 +42,12 @@ export function ToyDetail() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const toyData = await request(`/toys/${id}`);
-        setToy(toyData.data || toyData);
+        const toyRes = await request(`/toys/${id}`);
+        setToy(toyRes.toy || toyRes.data || toyRes);
 
-        const reviewsData = await request(`/reviews/toy/${id}`);
-        setReviews(reviewsData.data || reviewsData);
+        const reviewsRes = await request(`/reviews/toy/${id}`);
+        const list = reviewsRes.reviews || reviewsRes.data || (Array.isArray(reviewsRes) ? reviewsRes : []);
+        setReviews(Array.isArray(list) ? list : []);
       } catch (err) {
         console.error("Lỗi tải chi tiết đồ chơi:", err);
       } finally {
@@ -48,7 +64,7 @@ export function ToyDetail() {
     try {
       await request("/requests", {
         method: "POST",
-        body: JSON.stringify({ toyId: id, startDate, endDate, note }),
+        body: JSON.stringify({ toyId: id, borrowDate, returnDate, message }),
       });
       setSuccess("Gửi yêu cầu mượn thành công!");
       setTimeout(() => {
@@ -82,15 +98,15 @@ export function ToyDetail() {
                 {isAvailable ? "Sẵn sàng mượn" : "Đang được mượn"}
               </Badge>
               <span className="text-xs text-gray-400 flex items-center gap-1">
-                <Tag className="w-3.5 h-3.5" /> {toy.category || "Chung"}
+                <Tag className="w-3.5 h-3.5" /> {CATEGORY_MAP[toy.category] || toy.category || "Chung"}
               </span>
             </div>
             <h1 className="text-2xl font-bold text-gray-900">{toy.name}</h1>
             <p className="text-gray-600 text-sm leading-relaxed">{toy.description}</p>
 
             <div className="grid grid-cols-2 gap-4 text-xs text-gray-600 pt-2 border-t border-gray-100">
-              <div>Độ tuổi: <span className="font-semibold text-gray-900">{toy.ageGroup || "N/A"}</span></div>
-              <div>Tình trạng: <span className="font-semibold text-gray-900">{toy.condition || "Tốt"}</span></div>
+              <div>Độ tuổi: <span className="font-semibold text-gray-900">{toy.ageRange || "N/A"}</span></div>
+              <div>Tình trạng: <span className="font-semibold text-gray-900">{CONDITION_MAP[toy.condition] || toy.condition || "Tốt"}</span></div>
               <div className="flex items-center gap-1 col-span-2">
                 <User className="w-4 h-4 text-gray-400" /> Chủ sở hữu: <span className="font-semibold text-gray-900">{toy.owner?.name || "Người dùng"}</span>
               </div>
@@ -155,8 +171,8 @@ export function ToyDetail() {
               <input
                 type="date"
                 required
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
+                value={borrowDate}
+                onChange={(e) => setBorrowDate(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
               />
             </div>
@@ -165,8 +181,8 @@ export function ToyDetail() {
               <input
                 type="date"
                 required
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
+                value={returnDate}
+                onChange={(e) => setReturnDate(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
               />
             </div>
@@ -174,8 +190,8 @@ export function ToyDetail() {
               <label className="block text-xs font-medium text-gray-700 mb-1">Ghi chú cho chủ đồ chơi</label>
               <textarea
                 rows="3"
-                value={note}
-                onChange={(e) => setNote(e.target.value)}
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
                 placeholder="Ví dụ: Bé nhà mình muốn mượn chơi thử vài ngày..."
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
               />

@@ -5,6 +5,21 @@ import { Badge } from "../components/ui/Badge";
 import { Modal } from "../components/ui/Modal";
 import { Plus, Edit, Trash2, Package } from "lucide-react";
 
+const CATEGORY_MAP = {
+  educational: "Học tập & Trí tuệ",
+  outdoor: "Vận động ngoài trời",
+  boardgame: "Boardgame",
+  doll: "Búp bê & Gấu bông",
+  vehicle: "Xe & Đua xe",
+  other: "Khác",
+};
+
+const CONDITION_MAP = {
+  new: "Mới",
+  good: "Tốt",
+  used: "Cũ",
+};
+
 export function MyToys() {
   const [toys, setToys] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -14,9 +29,9 @@ export function MyToys() {
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [category, setCategory] = useState("Khác");
-  const [ageGroup, setAgeGroup] = useState("3-5 tuổi");
-  const [condition, setCondition] = useState("Tốt");
+  const [category, setCategory] = useState("other");
+  const [ageRange, setAgeRange] = useState("3-5 tuổi");
+  const [condition, setCondition] = useState("good");
   const [imageFile, setImageFile] = useState(null);
 
   const [submitting, setSubmitting] = useState(false);
@@ -26,9 +41,11 @@ export function MyToys() {
     setLoading(true);
     try {
       const data = await request("/toys/mine");
-      setToys(data.data || data);
+      const list = data.toys || data.items || data.data || (Array.isArray(data) ? data : []);
+      setToys(Array.isArray(list) ? list : []);
     } catch (err) {
       console.error("Lỗi tải đồ chơi của tôi:", err);
+      setToys([]);
     } finally {
       setLoading(false);
     }
@@ -42,9 +59,9 @@ export function MyToys() {
     setEditingToy(null);
     setName("");
     setDescription("");
-    setCategory("Khác");
-    setAgeGroup("3-5 tuổi");
-    setCondition("Tốt");
+    setCategory("other");
+    setAgeRange("3-5 tuổi");
+    setCondition("good");
     setImageFile(null);
     setError("");
     setIsModalOpen(true);
@@ -54,9 +71,9 @@ export function MyToys() {
     setEditingToy(toy);
     setName(toy.name);
     setDescription(toy.description || "");
-    setCategory(toy.category || "Khác");
-    setAgeGroup(toy.ageGroup || "3-5 tuổi");
-    setCondition(toy.condition || "Tốt");
+    setCategory(toy.category || "other");
+    setAgeRange(toy.ageRange || "3-5 tuổi");
+    setCondition(toy.condition || "good");
     setImageFile(null);
     setError("");
     setIsModalOpen(true);
@@ -71,7 +88,7 @@ export function MyToys() {
     formData.append("name", name);
     formData.append("description", description);
     formData.append("category", category);
-    formData.append("ageGroup", ageGroup);
+    formData.append("ageRange", ageRange);
     formData.append("condition", condition);
     if (imageFile) {
       formData.append("images", imageFile);
@@ -124,7 +141,7 @@ export function MyToys() {
 
       {loading ? (
         <div className="text-center py-12 text-gray-500">Đang tải danh sách...</div>
-      ) : toys.length === 0 ? (
+      ) : !Array.isArray(toys) || toys.length === 0 ? (
         <div className="text-center py-12 text-gray-500 bg-white rounded-xl border border-gray-200">
           Bạn chưa đăng đồ chơi nào. Hãy bấm "Đăng đồ chơi mới" ở trên!
         </div>
@@ -142,7 +159,7 @@ export function MyToys() {
                   <div>
                     <h4 className="font-semibold text-gray-900">{toy.name}</h4>
                     <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
-                      <span>{toy.category}</span> • <span>{toy.ageGroup}</span>
+                      <span>{CATEGORY_MAP[toy.category] || toy.category}</span> • <span>{toy.ageRange}</span>
                     </div>
                   </div>
                 </div>
@@ -192,6 +209,7 @@ export function MyToys() {
             <label className="block text-xs font-medium text-gray-700 mb-1">Mô tả</label>
             <textarea
               rows="3"
+              required
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
@@ -205,18 +223,19 @@ export function MyToys() {
                 onChange={(e) => setCategory(e.target.value)}
                 className="w-full px-2 py-2 border border-gray-300 rounded-lg text-xs"
               >
-                <option value="Gấu bông">Gấu bông</option>
-                <option value="Xếp hình">Xếp hình</option>
-                <option value="Đua xe">Đua xe</option>
-                <option value="Búp bê">Búp bê</option>
-                <option value="Khác">Khác</option>
+                <option value="educational">Học tập & Trí tuệ</option>
+                <option value="outdoor">Vận động ngoài trời</option>
+                <option value="boardgame">Boardgame</option>
+                <option value="doll">Búp bê & Gấu bông</option>
+                <option value="vehicle">Xe & Đua xe</option>
+                <option value="other">Khác</option>
               </select>
             </div>
             <div>
               <label className="block text-xs font-medium text-gray-700 mb-1">Độ tuổi</label>
               <select
-                value={ageGroup}
-                onChange={(e) => setAgeGroup(e.target.value)}
+                value={ageRange}
+                onChange={(e) => setAgeRange(e.target.value)}
                 className="w-full px-2 py-2 border border-gray-300 rounded-lg text-xs"
               >
                 <option value="0-2 tuổi">0-2 tuổi</option>
@@ -232,9 +251,9 @@ export function MyToys() {
                 onChange={(e) => setCondition(e.target.value)}
                 className="w-full px-2 py-2 border border-gray-300 rounded-lg text-xs"
               >
-                <option value="Mới">Mới</option>
-                <option value="Tốt">Tốt</option>
-                <option value="Cũ">Cũ</option>
+                <option value="new">Mới</option>
+                <option value="good">Tốt</option>
+                <option value="used">Cũ</option>
               </select>
             </div>
           </div>
