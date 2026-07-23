@@ -83,6 +83,9 @@ export function Home() {
             src="https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?w=800&auto=format&fit=crop&q=80"
             alt="Kid Toy Airplane"
             className="w-full h-full object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-300"
+            onError={(e) => {
+              e.currentTarget.src = REAL_TOY_IMAGES[0];
+            }}
           />
         </div>
 
@@ -214,13 +217,14 @@ export function Home() {
               {toys.map((toy, idx) => {
                 const isAvailable = toy.status === "available";
                 const fallbackImg = REAL_TOY_IMAGES[idx % REAL_TOY_IMAGES.length];
-                const imageUrl = toy.images && toy.images.length > 0 ? getImageUrl(toy.images[0]) : fallbackImg;
+                const rawUrl = toy.images && toy.images.length > 0 ? toy.images[0] : null;
+                const imageUrl = rawUrl ? getImageUrl(rawUrl) : fallbackImg;
 
                 return (
                   <div key={toy._id} className="group flex flex-col justify-between">
                     {/* Dribbble Product Card Container */}
-                    <div className="bg-[#f4f5f7] rounded-[2rem] p-6 relative flex items-center justify-center h-64 group-hover:bg-gray-200/70 transition-colors">
-                      <button className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white flex items-center justify-center shadow-2xs hover:scale-110 text-gray-400 hover:text-rose-500 transition-all cursor-pointer">
+                    <div className="bg-[#f4f5f7] rounded-[2rem] p-6 relative flex items-center justify-center h-64 group-hover:bg-gray-200/70 transition-colors overflow-hidden">
+                      <button className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white flex items-center justify-center shadow-2xs hover:scale-110 text-gray-400 hover:text-rose-500 transition-all cursor-pointer z-10">
                         <Heart className="w-4 h-4" />
                       </button>
 
@@ -228,6 +232,9 @@ export function Home() {
                         src={imageUrl}
                         alt={toy.name}
                         className="max-h-48 w-auto object-contain drop-shadow-md group-hover:scale-105 transition-transform duration-300 rounded-xl"
+                        onError={(e) => {
+                          e.currentTarget.src = fallbackImg;
+                        }}
                       />
                     </div>
 

@@ -5,7 +5,7 @@ import { useAuth } from "../context/AuthContext";
 import { Button } from "../components/ui/Button";
 import { Badge } from "../components/ui/Badge";
 import { Modal } from "../components/ui/Modal";
-import { Star, User, Tag, ShieldCheck } from "lucide-react";
+import { Star, User, Tag } from "lucide-react";
 
 const CATEGORY_MAP = {
   educational: "Học tập & Trí tuệ",
@@ -21,6 +21,8 @@ const CONDITION_MAP = {
   good: "Còn rất tốt",
   used: "Đã qua sử dụng",
 };
+
+const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?w=800&auto=format&fit=crop&q=80";
 
 export function ToyDetail() {
   const { id } = useParams();
@@ -83,13 +85,18 @@ export function ToyDetail() {
 
   const isOwner = user && toy.owner && (user._id === toy.owner._id || user._id === toy.owner);
   const isAvailable = toy.status === "available";
-  const imageUrl = toy.images && toy.images.length > 0 ? getImageUrl(toy.images[0]) : "https://placehold.co/600x400?text=No+Image";
+  const imageUrl = toy.images && toy.images.length > 0 ? getImageUrl(toy.images[0]) : FALLBACK_IMAGE;
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8 space-y-8">
       <div className="bg-white rounded-[2.5rem] border border-gray-100 p-8 shadow-xs grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-        <div className="h-96 bg-[#f4f5f7] rounded-[2rem] p-6 flex items-center justify-center relative">
-          <img src={imageUrl} alt={toy.name} className="max-h-80 w-auto object-contain drop-shadow-md" />
+        <div className="h-96 bg-[#f4f5f7] rounded-[2rem] p-6 flex items-center justify-center relative overflow-hidden">
+          <img
+            src={imageUrl}
+            alt={toy.name}
+            className="max-h-80 w-auto object-contain drop-shadow-md rounded-xl"
+            onError={(e) => { e.currentTarget.src = FALLBACK_IMAGE; }}
+          />
         </div>
         <div className="flex flex-col justify-between space-y-6">
           <div className="space-y-4">

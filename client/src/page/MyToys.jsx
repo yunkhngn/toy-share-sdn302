@@ -14,6 +14,8 @@ const CATEGORY_MAP = {
   other: "Khác",
 };
 
+const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?w=800&auto=format&fit=crop&q=80";
+
 export function MyToys() {
   const [toys, setToys] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -145,11 +147,12 @@ export function MyToys() {
             {toys.map((toy) => (
               <div key={toy._id} className="p-5 flex items-center justify-between gap-4 hover:bg-gray-50/80 transition-colors">
                 <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 rounded-2xl bg-[#f4f5f7] p-2 flex items-center justify-center">
+                  <div className="w-16 h-16 rounded-2xl bg-[#f4f5f7] p-2 flex items-center justify-center overflow-hidden">
                     <img
-                      src={toy.images && toy.images.length > 0 ? getImageUrl(toy.images[0]) : "https://placehold.co/100x100?text=Toy"}
+                      src={toy.images && toy.images.length > 0 ? getImageUrl(toy.images[0]) : FALLBACK_IMAGE}
                       alt={toy.name}
-                      className="max-h-full max-w-full object-contain"
+                      className="max-h-full max-w-full object-contain rounded-lg"
+                      onError={(e) => { e.currentTarget.src = FALLBACK_IMAGE; }}
                     />
                   </div>
                   <div>
