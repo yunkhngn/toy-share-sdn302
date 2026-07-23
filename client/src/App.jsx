@@ -1,19 +1,27 @@
-import { useEffect, useState } from "react";
-import { getHealth } from "./api/client";
+import React from "react";
+import { Routes, Route } from "react-router-dom";
+import { Navbar } from "./components/Navbar";
+import { Home } from "./page/Home";
+import { ToyDetail } from "./page/ToyDetail";
+import { Login } from "./page/Login";
+import { Register } from "./page/Register";
+import { MyToys } from "./page/MyToys";
+import { Requests } from "./page/Requests";
 
 function App() {
-  const [status, setStatus] = useState("checking...");
-
-  useEffect(() => {
-    getHealth()
-      .then((data) => setStatus(`API ok, DB: ${data.db}`))
-      .catch((err) => setStatus(`API error: ${err.message}`));
-  }, []);
-
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center gap-4">
-      <h1 className="text-3xl font-semibold text-gray-800">Toy Sharing</h1>
-      <p className="text-gray-500">{status}</p>
+    <div className="min-h-screen bg-gray-50 flex flex-col font-sans text-gray-900">
+      <Navbar />
+      <main className="flex-1">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/toys/:id" element={<ToyDetail />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/my-toys" element={<MyToys />} />
+          <Route path="/requests" element={<Requests />} />
+        </Routes>
+      </main>
     </div>
   );
 }
