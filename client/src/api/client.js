@@ -1,14 +1,23 @@
 const BASE_URL = "/api";
 
-async function request(path, options = {}) {
+export async function request(path, options = {}) {
+  const token = localStorage.getItem("token");
+  const isFormData = options.body instanceof FormData;
+
+  const headers = {
+    ...(!isFormData && { "Content-Type": "application/json" }),
+    ...(token && { Authorization: `Bearer ${token}` }),
+    ...options.headers,
+  };
+
   const res = await fetch(`${BASE_URL}${path}`, {
-    headers: { "Content-Type": "application/json" },
     ...options,
+    headers,
   });
 
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
-    throw new Error(body.message || `Request failed: ${res.status}`);
+    throw new Error(body.message || `Lỗi yêu cầu: ${res.status}`);
   }
 
   return res.json();
@@ -16,4 +25,10 @@ async function request(path, options = {}) {
 
 export function getHealth() {
   return request("/health");
+}
+
+export function getImageUrl(path) {
+  if (!path) return "https://placehold.co/400x300?text=No+Image";
+  if (path.startsWith("http://") || path.startsWith("https://")) return path;
+  return path.startsWith("/") ? path : `/${path}`;
 }
