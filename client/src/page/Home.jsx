@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { request, getImageUrl } from "../api/client";
-import { Star, Heart, ChevronDown, Filter } from "lucide-react";
-import { Badge } from "../components/ui/Badge";
+import { Star, Heart, ChevronDown } from "lucide-react";
 import { Button } from "../components/ui/Button";
 
 const CATEGORY_LIST = [
@@ -19,6 +18,15 @@ const AGE_RANGES = [
   { id: "3-5 tuổi", label: "3 đến 5 tuổi" },
   { id: "6-8 tuổi", label: "6 đến 8 tuổi" },
   { id: "9+ tuổi", label: "9 tuổi trở lên" },
+];
+
+// High quality real toy photos for fallback demonstration
+const REAL_TOY_IMAGES = [
+  "https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?w=800&auto=format&fit=crop&q=80",
+  "https://images.unsplash.com/photo-1587654562363-60545657574e?w=800&auto=format&fit=crop&q=80",
+  "https://images.unsplash.com/photo-1558060370-d644479be6f7?w=800&auto=format&fit=crop&q=80",
+  "https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=800&auto=format&fit=crop&q=80",
+  "https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=800&auto=format&fit=crop&q=80",
 ];
 
 export function Home() {
@@ -58,45 +66,45 @@ export function Home() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-10">
-      {/* Dribbble Style Hero Banner */}
+      {/* Dribbble Style Hero Banner with Real Photo */}
       <div className="bg-[#a4e2cd] rounded-[2.5rem] p-8 md:p-14 relative overflow-hidden flex items-center justify-between min-h-[320px] shadow-xs">
         <div className="max-w-xl z-10 space-y-4">
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-gray-900 leading-tight">
-            Đồ chơi mượn cho bé từ 1 đến 15 tuổi
+            Gifts and Toys for 13 to Young Adults
           </h1>
           <p className="text-gray-800 text-sm md:text-base font-medium leading-relaxed max-w-md">
-            ToyShare giúp các bé khám phá niềm đam mê sáng tạo, tư duy STEM và phát triển kỹ năng thông qua việc chia sẻ đồ chơi an toàn.
+            ToyShare sets encourage young adults to pursue their passion for building, engineering, STEM and robotics in a creative way.
           </p>
         </div>
 
-        {/* Decorative Toy Illustration */}
-        <div className="hidden lg:block relative z-10 w-96 h-64">
-          <svg className="w-full h-full text-rose-300 drop-shadow-lg animate-pulse" viewBox="0 0 200 200" fill="none">
-            <path d="M40,100 Q100,20 160,100 Q100,180 40,100 Z" fill="#ff8ba7" />
-            <circle cx="100" cy="100" r="35" fill="#ffd166" />
-            <rect x="75" y="85" width="50" height="30" rx="15" fill="#06d6a0" />
-          </svg>
+        {/* Real Toy Image in Banner */}
+        <div className="hidden lg:block relative z-10 w-96 h-64 flex items-center justify-center">
+          <img
+            src="https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?w=800&auto=format&fit=crop&q=80"
+            alt="Kid Toy Airplane"
+            className="w-full h-full object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-300"
+          />
         </div>
 
-        {/* Background Subtle Shapes */}
+        {/* Background Subtle Shape */}
         <div className="absolute -bottom-10 -right-10 w-72 h-72 bg-white/20 rounded-full blur-2xl pointer-events-none" />
       </div>
 
       {/* Main Catalog Header Bar */}
       <div className="flex items-center justify-between pt-2">
         <h2 className="text-base font-bold text-gray-900">
-          Hiển thị {toys.length} Đồ chơi
+          Showing {toys.length} Products
         </h2>
 
         <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold text-gray-500 hidden sm:inline">Sắp xếp:</span>
+          <span className="text-xs font-semibold text-gray-500 hidden sm:inline">Sort by:</span>
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
             className="bg-white border border-gray-200 rounded-full px-4 py-2 text-xs font-bold text-gray-800 focus:outline-none focus:border-[#00b05b] cursor-pointer shadow-2xs"
           >
-            <option value="recommended">Gợi ý hàng đầu</option>
-            <option value="newest">Mới nhất</option>
+            <option value="recommended">Recommended</option>
+            <option value="newest">Newest Arrival</option>
           </select>
         </div>
       </div>
@@ -108,7 +116,7 @@ export function Home() {
           {/* Filter: Age */}
           <div className="border-b border-gray-100 pb-6 space-y-3">
             <div className="flex items-center justify-between font-bold text-sm text-gray-900">
-              <span>Độ tuổi</span>
+              <span>Age</span>
               <ChevronDown className="w-4 h-4 text-gray-400" />
             </div>
             <div className="space-y-2 pt-1">
@@ -130,7 +138,7 @@ export function Home() {
           {/* Filter: Product Type / Category */}
           <div className="border-b border-gray-100 pb-6 space-y-3">
             <div className="flex items-center justify-between font-bold text-sm text-gray-900">
-              <span>Loại đồ chơi</span>
+              <span>Product type</span>
               <ChevronDown className="w-4 h-4 text-gray-400" />
             </div>
             <div className="space-y-2.5 pt-1">
@@ -154,7 +162,7 @@ export function Home() {
           {/* Filter: Condition */}
           <div className="space-y-3">
             <div className="flex items-center justify-between font-bold text-sm text-gray-900">
-              <span>Tình trạng đồ chơi</span>
+              <span>Condition</span>
               <ChevronDown className="w-4 h-4 text-gray-400" />
             </div>
             <div className="space-y-2 pt-1">
@@ -188,7 +196,7 @@ export function Home() {
                 setSelectedCondition("");
               }}
             >
-              Xoá bộ lọc
+              Clear filters
             </Button>
           )}
         </aside>
@@ -199,13 +207,14 @@ export function Home() {
             <div className="text-center py-20 text-gray-500 font-medium">Đang tải danh sách đồ chơi...</div>
           ) : !Array.isArray(toys) || toys.length === 0 ? (
             <div className="text-center py-20 bg-[#f4f5f7] rounded-3xl text-gray-500 font-medium">
-              Không tìm thấy đồ chơi nào phù hợp với tìm kiếm của bạn.
+              Không tìm thấy đồ chơi nào phù hợp.
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {toys.map((toy) => {
+              {toys.map((toy, idx) => {
                 const isAvailable = toy.status === "available";
-                const imageUrl = toy.images && toy.images.length > 0 ? getImageUrl(toy.images[0]) : "https://placehold.co/400x400?text=Toy";
+                const fallbackImg = REAL_TOY_IMAGES[idx % REAL_TOY_IMAGES.length];
+                const imageUrl = toy.images && toy.images.length > 0 ? getImageUrl(toy.images[0]) : fallbackImg;
 
                 return (
                   <div key={toy._id} className="group flex flex-col justify-between">
@@ -218,7 +227,7 @@ export function Home() {
                       <img
                         src={imageUrl}
                         alt={toy.name}
-                        className="max-h-48 w-auto object-contain drop-shadow-md group-hover:scale-105 transition-transform duration-300"
+                        className="max-h-48 w-auto object-contain drop-shadow-md group-hover:scale-105 transition-transform duration-300 rounded-xl"
                       />
                     </div>
 

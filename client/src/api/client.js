@@ -28,7 +28,7 @@ export function getHealth() {
 }
 
 export function getImageUrl(path) {
-  if (!path) return "https://placehold.co/400x300?text=No+Image";
+  if (!path) return "https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?w=800&auto=format&fit=crop&q=80";
   if (path.startsWith("http://") || path.startsWith("https://")) return path;
   return path.startsWith("/") ? path : `/${path}`;
 }
