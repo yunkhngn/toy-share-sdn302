@@ -44,12 +44,6 @@ export function Navbar() {
           >
             Trang chủ
           </Link>
-          <Link
-            to="/"
-            className="text-sm font-semibold text-gray-600 hover:text-gray-900 transition-colors"
-          >
-            Đồ chơi
-          </Link>
           {user && (
             <>
               <Link
